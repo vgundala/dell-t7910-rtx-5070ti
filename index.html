@@ -98,7 +98,7 @@
   <strong>Card Thickness & Clearance:</strong> Thick 2.5-slot and 3-slot cards (such as the ZOTAC Gaming Solid OC) collide heavily with the power harness, levering the rear PCIe pins out of contact. Slimmer dual-slot or compact/SFF cards are far better suited for Slot 4 because they clear the wiring harness cleanly.
 </div>
 
-<p><em>Note on workstation vendors:</em> This clearance conflict is specific to Dell Precision chassis. HP Z-series (Z840/Z8) and Lenovo ThinkStations (P900/P910/P920) use separate cable channels and do not obstruct the primary x16 slot.</p>
+<p><em>Note on workstation vendors:</em> This Slot 4 harness conflict was verified on Dell Precision Tower workstations (tested on T7910, likely similar on other Dell T-series models). HP Z-series (Z840/Z8) and Lenovo ThinkStations (P900/P910/P920) have not been tested; your mileage may vary depending on their internal cable routing and slot clearances.</p>
 
 <h2>2. BIOS POST Timeout & Closed Bridge Windows</h2>
 <p>Dell BIOS A34 probes PCIe slots within the first 1-2 seconds of POST. If the GPU handshakes slowly or was levered during power-on, the BIOS leaves root port bridge <code>00:03.0</code> decoding windows closed (Base &gt; Limit):</p>

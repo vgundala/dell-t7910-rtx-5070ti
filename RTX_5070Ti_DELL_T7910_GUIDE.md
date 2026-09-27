@@ -28,7 +28,7 @@ The output returns `0000`, and link width remains locked at 0.
 
 Thick 2.5-slot and 3-slot GPUs (such as the ZOTAC Gaming Solid OC) collide heavily with the wiring harness, creating severe upward pressure that risks unseating the PCIe connector. Slimmer dual-slot or SFF cards are far better choices for Slot 4, avoiding the harness obstruction and fitting cleanly without occupying three physical slot spaces.
 
-This specific harness conflict is isolated to Dell Precision designs. HP Z-series (Z840/Z8) and Lenovo ThinkStations (P900/P910/P920) utilize different internal ducting and harness layouts that avoid Slot 4 interference.
+This Slot 4 harness conflict was verified on Dell Precision Tower workstations (tested on T7910, likely similar on other Dell T-series models). HP Z-series (Z840/Z8) and Lenovo ThinkStations (P900/P910/P920) have not been tested; your mileage may vary depending on their internal cable routing and slot clearances.
 
 ## The BIOS POST Timeout & Closed Bridge Windows
 
