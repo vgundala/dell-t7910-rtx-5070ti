@@ -26,7 +26,7 @@ setpci -s 00:03.0 0x148.w
 
 The output returns `0000`, and link width remains locked at 0. 
 
-Do not install Small Form Factor (SFF) or short-bracket GPUs in Slot 4 on Dell Precision chassis. SFF cards lack the clearance and mechanical rigidity required to counteract harness pressure. Use a card with a full-length rigid backplate and substantial structural integrity. 
+Thick 2.5-slot and 3-slot GPUs (such as the ZOTAC Gaming Solid OC) collide heavily with the wiring harness, creating severe upward pressure that risks unseating the PCIe connector. Slimmer dual-slot or SFF cards are far better choices for Slot 4, avoiding the harness obstruction and fitting cleanly without occupying three physical slot spaces.
 
 This specific harness conflict is isolated to Dell Precision designs. HP Z-series (Z840/Z8) and Lenovo ThinkStations (P900/P910/P920) utilize different internal ducting and harness layouts that avoid Slot 4 interference.
 

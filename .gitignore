@@ -1,3 +1,7 @@
 __pycache__/
 *.pyc
 *.pyo
+
+# Local publication drafts
+REDDIT_POST.md
+LEVEL1TECHS_POST.md

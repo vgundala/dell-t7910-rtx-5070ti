@@ -4,8 +4,8 @@ Hardware fixes, register programming, and automated services for running RTX 50-
 
 ## The Problems Solved
 
-1. **Physical Pin B81 Clearance Trap:** Motherboard power harness under Slot 4 acts as a lever against the GPU shroud, lifting the rear pins (Pin B81 / `PRSNT2#`). Aux power gives false positive LED/fan activity while the slot registers empty (`0x0000`).
-2. **Warning on SFF Cards:** Small Form Factor (SFF) or short-bracket cards lack the rigidity and clearance to clear the harness; do not use them in Slot 4.
+1. **Physical Pin B81 Clearance Trap:** The motherboard power harness under Slot 4 acts as a lever against the GPU cooler shroud, lifting the rear pins (Pin B81 / `PRSNT2#`). Aux power gives false positive LED/fan activity while the slot registers empty (`0x0000`).
+2. **Card Thickness & Slot 4 Clearance:** Oversized 2.5-slot and 3-slot cards press hard against the motherboard power harness directly beneath Slot 4, creating severe seating pressure. Slimmer 2-slot or compact/SFF cards are preferable in Slot 4 to avoid harness collision.
 3. **BIOS POST Disablement & Closed Bridge Windows:** Dell BIOS A34 disables root port `00:03.0` decoding windows (`Base > Limit`) during early POST, causing `[Errno 5] Input/output error` and `rm_init_adapter failed (-1)`.
 4. **Blackwell GSP DMA / IOMMU Faults:** Strict Intel VT-d blocks GSP DMA at `0xfff01000`, causing 290,000+ DMAR read faults.
 5. **GSP WPR2 Lockout:** Incomplete initialization locks Write-Protected Region 2 until secondary bus reset.
@@ -38,8 +38,6 @@ sudo update-grub
 | File | Description |
 | :--- | :--- |
 | [`RTX_5070Ti_DELL_T7910_GUIDE.md`](RTX_5070Ti_DELL_T7910_GUIDE.md) | Full technical breakdown and manual step-by-step resolution |
-| [`REDDIT_POST.md`](REDDIT_POST.md) | Formatted publication draft for r/LocalLLaMA and r/homelab |
-| [`LEVEL1TECHS_POST.md`](LEVEL1TECHS_POST.md) | Formatted publication draft for Level1Techs Discourse forum |
 | [`init_gpu_boot.sh`](init_gpu_boot.sh) | Boot script: resets secondary bus, retrains link, rescans bus, programs bridge, binds driver |
 | [`init-5070ti.service`](init-5070ti.service) | Systemd oneshot boot service |
 | [`gpu_presence_monitor.py`](gpu_presence_monitor.py) | Hardware daemon polling register `0x148` for Pin B81 contact, sends persistent desktop alert on lift |
