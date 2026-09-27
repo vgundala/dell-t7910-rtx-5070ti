@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Running RTX 5070 Ti (Blackwell) on Legacy Workstations</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --heading: #f0f6fc;
+      --accent: #58a6ff;
+      --warn: #d29922;
+      --code-bg: #0b0e14;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      background-color: var(--bg);
+      color: var(--text);
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+    h1, h2, h3 {
+      color: var(--heading);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.3em;
+    }
+    h1 { font-size: 2rem; margin-top: 0; }
+    h2 { font-size: 1.4rem; margin-top: 2rem; }
+    h3 { font-size: 1.15rem; margin-top: 1.5rem; border-bottom: none; }
+    code {
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      background-color: var(--code-bg);
+      padding: 0.2em 0.4em;
+      border-radius: 4px;
+      font-size: 0.9em;
+      color: #79c0ff;
+    }
+    pre {
+      background-color: var(--code-bg);
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+    }
+    pre code {
+      background: none;
+      padding: 0;
+      color: #e6edf3;
+    }
+    .callout {
+      border-left: 4px solid var(--warn);
+      background-color: rgba(210, 153, 34, 0.1);
+      padding: 0.8rem 1.2rem;
+      margin: 1.2rem 0;
+      border-radius: 0 6px 6px 0;
+    }
+    .specs-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    .specs-table th, .specs-table td {
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.8rem;
+      text-align: left;
+    }
+    .specs-table th {
+      background-color: var(--card-bg);
+      color: var(--heading);
+    }
+  </style>
+</head>
+<body>
+
+<h1>Running RTX 5070 Ti (Blackwell) on Legacy Workstations</h1>
+<p>Fixing the Dell Precision Slot 4 Physical Seating Trap, PCIe Bridge Windows, and IOMMU Faults.</p>
+
+<table class="specs-table">
+  <tr><th>Chassis</th><td>Dell Precision Tower 7910 (Dual Xeon E5-2640 v4, 1300W PSU)</td></tr>
+  <tr><th>GPU</th><td>ZOTAC Gaming GeForce RTX 5070 Ti 16GB (Device ID <code>10de:2c05</code>, Blackwell)</td></tr>
+  <tr><th>Slot</th><td>PCIe Slot 4 (Root Port <code>0000:00:03.0</code>)</td></tr>
+  <tr><th>OS</th><td>Pop!_OS 24.04 LTS (Linux kernel 7.1.x)</td></tr>
+</table>
+
+<h2>1. The Physical Mechanical Clearance Trap & Pin B81</h2>
+<p>On Dell Precision T7910, T7810, and T7920 chassis, the thick 24-pin motherboard main power cable bundle routes directly underneath PCIe Slot 4. The rigid wiring harness arches upward against the GPU cooler shroud.</p>
+<p>This creates a deceptive false positive: auxiliary PCIe power cables supply 12V directly from the PSU, spinning fans and illuminating RGB lighting. The system appears seated, but the upward pressure lifts the back of the card out of the socket.</p>
+<p>This disconnects <strong>Pin B81 (PRSNT2#)</strong>, the short presence-detect pin at the far right of the x16 slot. Checking root port <code>00:03.0</code> status returns empty:</p>
+<pre><code>setpci -s 00:03.0 0x148.w
+# Output: 0000 (Motherboard PRSNT pin reads OPEN)</code></pre>
+
+<div class="callout">
+  <strong>Warning on SFF / Short-Bracket Cards:</strong> Do not install Small Form Factor (SFF) or short-bracket GPUs in Slot 4 on Dell Precision chassis. SFF cards lack the structural rigidity and clearance required to resist cable harness tension. The card will flex and disconnect pins. Use a full-length card with a rigid metal backplate.
+</div>
+
+<p><em>Note on workstation vendors:</em> This clearance conflict is specific to Dell Precision chassis. HP Z-series (Z840/Z8) and Lenovo ThinkStations (P900/P910/P920) use separate cable channels and do not obstruct the primary x16 slot.</p>
+
+<h2>2. BIOS POST Timeout & Closed Bridge Windows</h2>
+<p>Dell BIOS A34 probes PCIe slots within the first 1-2 seconds of POST. If the GPU handshakes slowly or was levered during power-on, the BIOS leaves root port bridge <code>00:03.0</code> decoding windows closed (Base &gt; Limit):</p>
+<ul>
+  <li>Memory Base: <code>0x20.w = fff0</code></li>
+  <li>Memory Limit: <code>0x22.w = 000f</code></li>
+</ul>
+<p>Linux rescans discover the card at <code>04:00.0</code>, but reading BAR0 aborts with <code>Input/output error (Errno 5)</code>. The NVIDIA driver aborts with <code>NVRM: rm_init_adapter failed, returning -1</code>.</p>
+<p>Reprogram the bridge registers directly:</p>
+<pre><code># Enable I/O and Memory decoding
+setpci -s 00:03.0 1c.b=10
+setpci -s 00:03.0 1d.b=10
+setpci -s 00:03.0 20.w=5000
+setpci -s 00:03.0 22.w=5400
+setpci -s 00:03.0 24.w=0bf1
+setpci -s 00:03.0 26.w=2ff1
+setpci -s 00:03.0 28.l=00000301
+setpci -s 00:03.0 2c.l=00000301
+setpci -s 00:03.0 04.w=0407:0407</code></pre>
+<p><em>Byte order note:</em> Register <code>0x24</code> requires <code>0bf1</code>. Writing <code>bf01</code> reverses nibbles, causing Base &gt; Limit and breaking MMIO reads.</p>
+
+<h2>3. Intel VT-d / IOMMU DMAR Storm</h2>
+<p>Blackwell's GPU System Processor (GSP) loads firmware via DMA at physical address <code>0xfff01000</code>. Default Intel IOMMU remapping drops these packets, logging over 290,000 DMAR read faults. Enable pass-through in the bootloader:</p>
+<pre><code># Pop!_OS (systemd-boot)
+sudo kernelstub -a "pci=realloc iommu=pt"
+
+# Debian / Ubuntu (GRUB)
+# Add "pci=realloc iommu=pt" to GRUB_CMDLINE_LINUX_DEFAULT in /etc/default/grub
+sudo update-grub</code></pre>
+
+<h2>4. Clearing WPR2 Firmware Lockout</h2>
+<p>An aborted GSP boot leaves Write-Protected Region 2 locked (<code>unexpected WPR2 already up</code>). Trigger a secondary bus reset on the root port to clear it:</p>
+<pre><code>echo 1 &gt; /sys/bus/pci/devices/0000:00:03.0/reset_subordinate</code></pre>
+
+<h2>5. Permanent Automated Services</h2>
+<p>Deploy the boot initialization script (<code>init_gpu_boot.sh</code>) via systemd oneshot service (<code>init-5070ti.service</code>), and monitor physical seating in real time with <code>gpu_presence_monitor.py</code> (<code>gpu-presence-monitor.service</code>). If cable tension levers the card up, a persistent desktop alert notifies you immediately without spamming.</p>
+
+</body>
+</html>

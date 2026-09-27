@@ -1,0 +1,13 @@
+[Unit]
+Description=RTX 5070 Ti Hardware Seating and Presence Monitor
+After=init-5070ti.service multi-user.target graphical.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/bin/python3 /usr/local/bin/gpu_presence_monitor.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

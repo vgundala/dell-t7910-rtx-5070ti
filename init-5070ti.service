@@ -1,0 +1,12 @@
+[Unit]
+Description=Initialize RTX 5070 Ti in PCIe Slot 4
+After=systemd-modules-load.service
+Before=display-manager.service multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/init_gpu_boot.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
