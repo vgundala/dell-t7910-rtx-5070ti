@@ -56,7 +56,7 @@ try:
     nid = iface.Notify(
         "RTX 5070 Ti Monitor",
         dbus.UInt32({replace_id}),
-        "dialog-warning",
+        "",
         {repr(summary)},
         {repr(body)},
         [],
@@ -152,7 +152,7 @@ class GPUPresenceMonitor:
             log("No active desktop user found to notify.")
             return
 
-        summary = "⚠️ RTX 5070 Ti: Hardware Pin Disconnected"
+        summary = "RTX 5070 Ti: Hardware Pin Disconnected"
         body = (
             "The rear pins of your RTX 5070 Ti in Slot 4 have lifted or lost electrical contact.\n"
             "Please press down firmly on the rear of the card until the retention clip clicks."
@@ -182,7 +182,7 @@ class GPUPresenceMonitor:
             log(f"Closed unseated alert (Notification ID: {self.unseated_notification_id})")
             self.unseated_notification_id = 0
 
-        summary = "✅ RTX 5070 Ti: Electrical Contact Restored"
+        summary = "RTX 5070 Ti: Electrical Contact Restored"
         body = "The card pins in Slot 4 are seated and electrical contact is confirmed."
 
         for username, uid, bus_path in users:
