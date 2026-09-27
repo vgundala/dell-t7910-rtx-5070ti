@@ -158,3 +158,7 @@ while True:
 [/details]
 
 The daemon monitors register `0x148` every 2 seconds. If cable tension lifts the card and disconnects Pin B81, it generates a single persistent desktop alert. Reseating the card auto-dismisses the notification and restores initialization without alert spam.
+
+Full repo with installer and systemd units:
+* GitHub: https://github.com/vgundala/dell-t7910-rtx-5070ti
+* Gist: https://gist.github.com/vgundala/a38017582ebdd06bc4e38e66938d6725

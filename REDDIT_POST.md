@@ -114,6 +114,8 @@ To make this hands-off, I created two systemd services:
 1. **Boot Initialization Service (`init-5070ti.service`):** Runs `/usr/local/bin/init_gpu_boot.sh` at boot before the display manager loads. It triggers a secondary bus reset, retrains the link, rescans the bus, programs the bridge registers, and binds the `nvidia` driver.
 2. **Real-time Seating Monitor (`gpu-presence-monitor.service`):** Runs `/usr/local/bin/gpu_presence_monitor.py`. It polls register `0x148` every 2 seconds. If cable tension levers the card up and disconnects Pin B81, it posts a single persistent desktop notification so you know immediately. When pushed back down, it auto-dismisses the alert and triggers initialization without notification spam.
 
-The full scripts, systemd units, and installer are available in the repository.
+The full scripts, systemd units, and installer are available in the repository:
+* GitHub: https://github.com/vgundala/dell-t7910-rtx-5070ti
+* Gist: https://gist.github.com/vgundala/a38017582ebdd06bc4e38e66938d6725
 
 Once configured, the RTX 5070 Ti operates stably at idle (P8 state, 35°C, 21W) and delivers full CUDA 13.0 performance under heavy compute loads.
