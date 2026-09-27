@@ -33,11 +33,29 @@ sudo update-grub
 
 ---
 
+## Using with AI Coding Tools
+
+Point your AI coding assistant (Claude Code, Antigravity, Cursor, Aider) to this repository to inspect and configure your machine:
+
+```bash
+git clone https://github.com/vgundala/dell-t7910-rtx-5070ti.git
+cd dell-t7910-rtx-5070ti
+```
+
+Prompt your agent:
+> "Inspect my PCIe slot status and bridge decoding windows using this repository's diagnostic scripts, then run the installer to enable the boot and monitoring services."
+
+The repository includes [`AGENTS.md`](AGENTS.md) and [`llms.txt`](llms.txt) with pre-configured register maps, verification commands, and hardware constraints for automated agents.
+
+---
+
 ## File Manifest
 
 | File | Description |
 | :--- | :--- |
 | [`RTX_5070Ti_DELL_T7910_GUIDE.md`](RTX_5070Ti_DELL_T7910_GUIDE.md) | Full technical breakdown and manual step-by-step resolution |
+| [`AGENTS.md`](AGENTS.md) | Execution guide and constraints for AI coding tools (Claude Code, Cursor, Aider) |
+| [`llms.txt`](llms.txt) | Compact summary for LLM search engines and web crawlers |
 | [`init_gpu_boot.sh`](init_gpu_boot.sh) | Boot script: resets secondary bus, retrains link, rescans bus, programs bridge, binds driver |
 | [`init-5070ti.service`](init-5070ti.service) | Systemd oneshot boot service |
 | [`gpu_presence_monitor.py`](gpu_presence_monitor.py) | Hardware daemon polling register `0x148` for Pin B81 contact, sends persistent desktop alert on lift |

@@ -1,0 +1,23 @@
+# Dell Precision T7910 RTX 5070 Ti (Blackwell) Enablement
+
+> Automated fixes, hardware register programming, and systemd services for running NVIDIA RTX 50-series GPUs on legacy Dell Precision workstations.
+
+## Hardware Summary
+- Chassis: Dell Precision Tower 7910 (dual Xeon E5-2600 v4)
+- Slot: PCIe Slot 4 (Root Port 0000:00:03.0)
+- GPU: NVIDIA GeForce RTX 5070 Ti 16GB (Blackwell, Device ID 10de:2c05)
+
+## Root Causes
+1. Motherboard 24-pin power harness under Slot 4 levers thick 2.5/3-slot GPU coolers up, disconnecting Pin B81 (PRSNT2#). Aux power keeps fans/RGB spinning, giving false positive seating. Link width drops to 0.
+2. Dell BIOS A34 PCIe scan times out, disabling root port bridge windows (Base > Limit: 0x20.w=fff0, 0x22.w=000f). Downstream MMIO reads return 0xFFFFFFFF.
+3. Blackwell GSP processor loads firmware via DMA to 0xfff01000. Default Intel VT-d blocks DMA transfers, flooding dmesg with DMAR read faults.
+
+## Fixes & Register Programming
+- Kernel parameters: pci=realloc iommu=pt
+- Bridge registers (00:03.0):
+  setpci -s 00:03.0 1c.b=10 1d.b=10 20.w=5000 22.w=5400 24.w=0bf1 26.w=2ff1 28.l=00000301 2c.l=00000301 04.w=0407:0407
+- Secondary bus reset to clear WPR2: echo 1 > /sys/bus/pci/devices/0000:00:03.0/reset_subordinate
+
+## Automation
+- /usr/local/bin/init_gpu_boot.sh + /etc/systemd/system/init-5070ti.service (runs at boot before display manager)
+- /usr/local/bin/gpu_presence_monitor.py + /etc/systemd/system/gpu-presence-monitor.service (polls Pin B81 every 2s, persistent desktop alert on disconnect)
